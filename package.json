@@ -1,0 +1,20 @@
+{
+  "name": "moment-logger",
+  "version": "1.0.0",
+  "description": "Logging with timestamps",
+  "main": "index.js",
+  "repository": "https://github.com/boxpositron/moment-logger",
+  "author": "David Ibia <david.ibia@boxmarshall.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "moment": "^2.29.1"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.0"
+  },
+  "scripts": {
+    "test": "mocha "
+  }
+}
