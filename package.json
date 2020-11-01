@@ -7,6 +7,9 @@
   "author": "David Ibia <david.ibia@boxmarshall.com>",
   "license": "MIT",
   "private": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "dependencies": {
     "chalk": "^4.1.0",
     "moment": "^2.29.1"
