@@ -3,19 +3,6 @@
 # Moment Logger
 Fancy terminal logging with timestamps
 
-## Installation
-
-NPM
-
-`npm install moment-logger`
-
-Yarn
-
-`yarn add moment-logger`
-
-
-## Usage
-
 ```js
 const logger = require('moment-logger')
 
