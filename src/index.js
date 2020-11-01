@@ -1,8 +1,16 @@
 const chalk = require('chalk')
-const moment = require('moment')
 
-const parseTime = () => chalk.gray.dim(`[${moment().format('HH:mm:ss')}]`)
-const display = (data) => console.log(data)
+const parseTime = () => {
+  const date = new Date()
+  const hours = date.getHours()
+  const minutes = date.getMinutes()
+  const seconds = date.getSeconds()
+  const milliseconds = date.getMilliseconds()
+
+  return chalk.gray.dim(`[${hours}:${minutes}:${seconds}:${milliseconds}]`)
+}
+
+const display = (message) => process.stdout.write(message)
 
 const operations = {
   log(message) {
