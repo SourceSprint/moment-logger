@@ -40,7 +40,7 @@ const operations = {
    */
   info(...data) {
     const message = stringify(data)
-    const colorCoded = `${parseTime()} ${chalk.blue(message)}`
+    const colorCoded = `${chalk.blue(message)}`
     return display(colorCoded)
   },
   /**
