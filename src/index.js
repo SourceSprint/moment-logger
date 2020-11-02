@@ -1,49 +1,65 @@
 const chalk = require('chalk')
+const { parseTime, stringify } = require('./utils')
 
-const parseTime = () => {
-  const date = new Date()
-  const hours = date.getHours()
-  const minutes = date.getMinutes()
-  const seconds = date.getSeconds()
-  const milliseconds = date.getMilliseconds()
-
-  return chalk.gray.dim(`[${hours}:${minutes}:${seconds}:${milliseconds}]`)
+const format = (message) => {
+  const { hours, minutes, seconds, milliseconds } = parseTime()
+  const timestamp = chalk.gray.dim(
+    `[${hours}:${minutes}:${seconds}:${milliseconds}]`
+  )
+  return `${timestamp}${message}\n`
 }
 
-const format = (message) => `${message}\n`
-
-const display = (message) => process.stdout.write(format(message))
+const display = (data) => {
+  const message = format(data)
+  process.stdout.write(message)
+  return message
+}
 
 const operations = {
-  log(message) {
-    const escapedMessage =
-      typeof message == 'object' ? JSON.stringify(message) : message
-    const formattedMessage = `${parseTime()} ${chalk.gray(escapedMessage)}`
-    display(formattedMessage)
+  /**
+   *
+   * @param  {...any} data
+   */
+  log(...data) {
+    const message = stringify(data)
+    const colorCoded = `${chalk.gray(message)}`
+    return display(colorCoded)
   },
-  warn(message) {
-    const escapedMessage =
-      typeof message == 'object' ? JSON.stringify(message) : message
-    const formattedMessage = `${parseTime()} ${chalk.magenta(escapedMessage)}`
-    display(formattedMessage)
+  /**
+   *
+   * @param  {...any} data
+   */
+  warn(...data) {
+    const message = stringify(data)
+    const colorCoded = `${chalk.magenta(message)}`
+    return display(colorCoded)
   },
-  info(message) {
-    const escapedMessage =
-      typeof message == 'object' ? JSON.stringify(message) : message
-    const formattedMessage = `${parseTime()} ${chalk.blue(escapedMessage)}`
-    display(formattedMessage)
+  /**
+   *
+   * @param  {...any} data
+   */
+  info(...data) {
+    const message = stringify(data)
+    const colorCoded = `${parseTime()} ${chalk.blue(message)}`
+    return display(colorCoded)
   },
-  error(message) {
-    const escapedMessage =
-      typeof message == 'object' ? JSON.stringify(message) : message
-    const formattedMessage = `${parseTime()} ${chalk.red(escapedMessage)}`
-    display(formattedMessage)
+  /**
+   *
+   * @param  {...any} data
+   */
+  error(...data) {
+    const message = stringify(data)
+    const colorCoded = `${chalk.red(message)}`
+    return display(colorCoded)
   },
-  blank(message) {
-    const escapedMessage =
-      typeof message == 'object' ? JSON.stringify(message) : message
-    const formattedMessage = `${parseTime()} ${chalk.gray.dim(escapedMessage)}`
-    display(formattedMessage)
+  /**
+   *
+   * @param  {...any} data
+   */
+  blank(...data) {
+    const message = stringify(data)
+    const colorCoded = `${chalk.gray.dim(message)}`
+    return display(colorCoded)
   }
 }
 
