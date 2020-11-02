@@ -7,10 +7,12 @@ const parseTime = () => {
   const seconds = date.getSeconds()
   const milliseconds = date.getMilliseconds()
 
-  return chalk.gray.dim(`[${hours}:${minutes}:${seconds}:${milliseconds}]\n`)
+  return chalk.gray.dim(`[${hours}:${minutes}:${seconds}:${milliseconds}]`)
 }
 
-const display = (message) => process.stdout.write(message)
+const format = (message) => `${message}\n`
+
+const display = (message) => process.stdout.write(format(message))
 
 const operations = {
   log(message) {
