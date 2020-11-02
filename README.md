@@ -4,7 +4,7 @@
 Fancy terminal logging with timestamps
 
 ```js
-const logger = require('moment-logger')
+const logger = require('@boxpositron/moment-logger')
 
 # Display hello world
 
