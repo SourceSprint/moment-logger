@@ -13,7 +13,15 @@ describe('Logger test', () => {
   for (let operation of operations) {
     it(`should print txt to terminal with .${operation}`, () => {
       try {
-        logger.log(sampleTxt)
+        const feedback = logger.log(sampleTxt)
+
+        if (!feedback) {
+          throw new Error('Display failed: Null response')
+        }
+
+        if (!feedback.trim().length) {
+          throw new Error('Display failed: Empty response')
+        }
       } catch (e) {
         assert.fail(e)
       }
@@ -21,7 +29,15 @@ describe('Logger test', () => {
 
     it(`should print an object to terminal with .${operation}`, () => {
       try {
-        logger.log(sampleObject)
+        const feedback = logger.log(sampleObject)
+
+        if (!feedback) {
+          throw new Error('Display failed: Null response')
+        }
+
+        if (!feedback.trim().length) {
+          throw new Error('Display failed: Empty response')
+        }
       } catch (e) {
         assert.fail(e)
       }
