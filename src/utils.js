@@ -17,7 +17,7 @@ const handleObject = (data) => {
   return JSON.stringify(data)
 }
 
-const stringify = (data) => {
+const collapse = (data) => {
   let composed = []
   for (let entry of data) {
     const isError = entry instanceof Error
@@ -38,5 +38,5 @@ const stringify = (data) => {
 
 module.exports = {
   parseTime,
-  stringify
+  collapse
 }
