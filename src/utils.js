@@ -8,13 +8,13 @@ const parseTime = () => {
   return { hours, minutes, seconds, milliseconds }
 }
 
-const handleError = (error) => {
-  const { name = '', message = '' } = error
-  return JSON.stringify({ name, message })
+const handleObject = (data) => {
+  return `${typeof data}\n${JSON.stringify(data, null, '\t')}`
 }
 
-const handleObject = (data) => {
-  return JSON.stringify(data)
+const handleError = (error) => {
+  const { name = '', message = '' } = error
+  return handleObject({ name, message })
 }
 
 const collapse = (data) => {
