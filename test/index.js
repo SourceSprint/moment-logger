@@ -13,7 +13,9 @@ describe('Logger test', () => {
   for (let operation of operations) {
     it(`should print txt to terminal with .${operation}`, () => {
       try {
-        const feedback = logger.log(sampleTxt)
+        const handler = logger[operation]
+
+        const feedback = handler(sampleTxt)
 
         if (!feedback) {
           throw new Error('Display failed: Null response')
@@ -29,7 +31,9 @@ describe('Logger test', () => {
 
     it(`should print an object to terminal with .${operation}`, () => {
       try {
-        const feedback = logger.log(sampleObject)
+        const handler = logger[operation]
+
+        const feedback = handler(sampleObject)
 
         if (!feedback) {
           throw new Error('Display failed: Null response')
