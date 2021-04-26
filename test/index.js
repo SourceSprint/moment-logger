@@ -4,7 +4,15 @@ const logger = require('../src')
 const sampleTxt = 'legendary text'
 
 const sampleObject = {
-  message: 'legendary object'
+  message: 'legendary object',
+  extra: {
+    name: 'John Doe',
+    age: 100,
+    stats: {
+      height: 200,
+      skintone: 'brown'
+    }
+  }
 }
 
 describe('Logger test', () => {
