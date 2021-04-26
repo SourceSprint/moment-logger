@@ -4,9 +4,9 @@ const { parseTime, collapse } = require('./utils')
 
 const format = (message) => {
   const { hours, minutes, seconds, milliseconds } = parseTime()
-  const timestamp = chalk.gray.dim(
-    `[${hours}:${minutes}:${seconds}:${milliseconds}]`
-  )
+  const parsed = `[${hours}:${minutes}:${seconds}:${milliseconds}]`
+  const padded = parsed.padEnd(17 - parsed.length)
+  const timestamp = chalk.gray.dim(padded)
   return `${timestamp} ${message}`
 }
 
@@ -23,6 +23,7 @@ const display = (payload) => {
   let header = ''
 
   const isBlank = type == LogTypes.blank
+  const isError = type == LogTypes.error
 
   if (!isBlank) {
     header = modifier(
@@ -30,9 +31,14 @@ const display = (payload) => {
     )
   }
 
-  const data = `${header}${body}\n`
+  const data = `${header}${body}`
 
-  process.stdout.write(data)
+  if (isError) {
+    data.split('\n').forEach((line) => process.stderr.write(`${line}\n`))
+  } else {
+    data.split('\n').forEach((line) => process.stdout.write(`${line}\n`))
+  }
+
   return data
 }
 
