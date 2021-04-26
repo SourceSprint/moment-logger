@@ -1,15 +1,9 @@
-const parseTime = () => {
-  const date = new Date()
-  const hours = date.getHours()
-  const minutes = date.getMinutes()
-  const seconds = date.getSeconds()
-  const milliseconds = date.getMilliseconds()
-
-  return { hours, minutes, seconds, milliseconds }
+const replacer = (key, value) => {
+  return value
 }
 
 const handleObject = (data) => {
-  return `${typeof data}\n${JSON.stringify(data, null, '\t')}`
+  return `${typeof data}\n${JSON.stringify(data, replacer, '\t')}`
 }
 
 const handleError = (error) => {
@@ -34,6 +28,16 @@ const collapse = (data) => {
   }
 
   return composed.join('\n')
+}
+
+const parseTime = () => {
+  const date = new Date()
+  const hours = date.getHours()
+  const minutes = date.getMinutes()
+  const seconds = date.getSeconds()
+  const milliseconds = date.getMilliseconds()
+
+  return { hours, minutes, seconds, milliseconds }
 }
 
 module.exports = {
