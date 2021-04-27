@@ -133,6 +133,15 @@ const operations = {
    */
   clear() {
     return display('\x1Bc')
+  },
+  /**
+   * Wait for input
+   */
+  pause() {
+    process.stdin.setRawMode(true)
+    process.stdin.resume()
+    process.stdin.on('data', process.exit.bind(process, 0))
+    return ''
   }
 }
 
