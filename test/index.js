@@ -16,7 +16,7 @@ const sampleObject = {
 }
 
 describe('Logger test', () => {
-  const operations = Object.keys(logger)
+  const operations = Object.keys(logger).sort()
 
   for (let operation of operations) {
     it(`should print txt to terminal with .${operation}`, () => {
