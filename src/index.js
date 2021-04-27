@@ -5,7 +5,7 @@ const { parseTime, collapse } = require('./utils')
 const format = (message) => {
   const { hours, minutes, seconds, milliseconds } = parseTime()
   const parsed = `[${hours}:${minutes}:${seconds}:${milliseconds}]`
-  const padded = parsed.padEnd(17 - parsed.length)
+  const padded = parsed.padEnd(20 - parsed.length)
   const timestamp = chalk.gray.dim(padded)
   return `${timestamp} ${message}`
 }
@@ -44,7 +44,7 @@ const display = (payload) => {
 
 const operations = {
   /**
-   *
+   * Display message with log formatting with timestamp
    * @param  {...any} data
    */
   log(...data) {
@@ -61,7 +61,7 @@ const operations = {
     return display(payload)
   },
   /**
-   *
+   * Display message with warning format with timestamp
    * @param  {...any} data
    */
   warn(...data) {
@@ -78,7 +78,7 @@ const operations = {
     return display(payload)
   },
   /**
-   *
+   *  Display message with information format with timestamp
    * @param  {...any} data
    */
   info(...data) {
@@ -95,7 +95,7 @@ const operations = {
     return display(payload)
   },
   /**
-   *
+   * Display message with error format with timestamp
    * @param  {...any} data
    */
   error(...data) {
@@ -112,7 +112,7 @@ const operations = {
     return display(payload)
   },
   /**
-   *
+   * Display a message with only timestamp
    * @param  {...any} data
    */
   blank(...data) {
@@ -127,6 +127,12 @@ const operations = {
     }
 
     return display(payload)
+  },
+  /**
+   *  Clears the console
+   */
+  clear() {
+    return display('\x1Bc')
   }
 }
 
