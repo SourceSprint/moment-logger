@@ -1,7 +1,7 @@
 const assert = require('assert')
 const logger = require('../src')
 
-const sampleTxt = 'legendary text'
+const sampleTxt = 'Lorem, ipsum dolor sit amet consectetur adipisicing elit.'
 
 const sampleObject = {
   message: 'legendary object',
@@ -15,13 +15,13 @@ const sampleObject = {
   }
 }
 
-describe('Logger test', () => {
-  const operations = Object.keys(logger)
-    .filter((operation) => operation !== 'pause')
-    .sort()
+describe('Logger function test', () => {
+  const operations = ['log', 'warn', 'info', 'error']
 
   for (let operation of operations) {
-    it(`should print txt to terminal with .${operation}`, () => {
+    /* jshint -W083 */
+
+    const operationcheck1 = () => {
       try {
         const handler = logger[operation]
 
@@ -37,9 +37,9 @@ describe('Logger test', () => {
       } catch (e) {
         assert.fail(e)
       }
-    })
+    }
 
-    it(`should print an object to terminal with .${operation}`, () => {
+    const operationcheck2 = () => {
       try {
         const handler = logger[operation]
 
@@ -55,6 +55,60 @@ describe('Logger test', () => {
       } catch (e) {
         assert.fail(e)
       }
-    })
+    }
+
+    it(`logs txt .${operation}`, operationcheck1)
+    it(`logs an object .${operation}`, operationcheck2)
+
+    /* jshint +W083 */
   }
+})
+
+describe('Logger class test', () => {
+  const operationcheck3 = () => {
+    try {
+      const log = new logger.Logger({
+        prefix: '🔥',
+        suffix: '❄️',
+        noType: true
+      })
+
+      const feedback = log.info(sampleTxt)
+
+      if (!feedback) {
+        throw new Error('Display failed: Null response')
+      }
+
+      if (!feedback.trim().length) {
+        throw new Error('Display failed: Empty response')
+      }
+    } catch (e) {
+      assert.fail(e)
+    }
+  }
+
+  const operationcheck4 = () => {
+    try {
+      const log = new logger.Logger({
+        prefix: '🔥',
+        suffix: '❄️',
+        noTimestamp: true
+      })
+
+      const feedback = log.info(sampleObject)
+
+      if (!feedback) {
+        throw new Error('Display failed: Null response')
+      }
+
+      if (!feedback.trim().length) {
+        throw new Error('Display failed: Empty response')
+      }
+    } catch (e) {
+      assert.fail(e)
+    }
+  }
+
+  it(`logs txt with prefix and suffix`, operationcheck3)
+  it(`logs an object with prefix and suffix`, operationcheck4)
 })
