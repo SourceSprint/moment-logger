@@ -1,6 +1,6 @@
 {
   "name": "@boxpositron/moment-logger",
-  "version": "1.0.3-5",
+  "version": "1.0.4",
   "description": "Logging with timestamps",
   "main": "index.js",
   "repository": "https://github.com/boxpositron/moment-logger",
