@@ -1,4 +1,6 @@
 const chalk = require('chalk')
+const Events = require('events')
+
 const { LogTypes } = require('./models')
 const { parseTime, collapse } = require('./utils')
 
@@ -58,13 +60,16 @@ const display = (payload) => {
   return data
 }
 
-class Logger {
+class Logger extends Events {
   constructor({
     prefix = '',
     suffix = '',
     noType = false,
     noTimestamp = false
   } = {}) {
+    super()
+    this.setMaxListeners(0)
+
     this.prefix = prefix
     this.suffix = suffix
     this.noType = noType
@@ -94,6 +99,8 @@ class Logger {
       message
     }
 
+    this.emit('logger-log', message)
+
     return display(payload)
   }
   /**
@@ -118,6 +125,8 @@ class Logger {
       modifier: chalk.white.bgHex('#ffa500').bold,
       message
     }
+
+    this.emit('logger-warn', message)
 
     return display(payload)
   }
@@ -144,6 +153,8 @@ class Logger {
       message
     }
 
+    this.emit('logger-info', message)
+
     return display(payload)
   }
   /**
@@ -168,6 +179,8 @@ class Logger {
       modifier: chalk.white.bgRed.bold,
       message
     }
+
+    this.emit('logger-error', message)
 
     return display(payload)
   }
@@ -194,12 +207,15 @@ class Logger {
       message
     }
 
+    this.emit('logger-blank', message)
+
     return display(payload)
   }
   /**
    *  Clears the console
    */
   clear() {
+    this.emit('logger-clear')
     return display('\x1Bc')
   }
   /**
@@ -216,9 +232,72 @@ class Logger {
   }
 }
 
+class Plugin {
+  constructor({ name = '' } = {}) {
+    this.name = name
+
+    this.logCb = null
+    this.infoCb = null
+    this.warnCb = null
+    this.errorCb = null
+  }
+
+  link(loggerInstance) {
+    const isLoggerInstance = loggerInstance instanceof Logger
+
+    if (!isLoggerInstance) {
+      throw new Error('Only logger instances can be linked to plugins')
+    }
+
+    loggerInstance.on('logger-log', (d) => (this.logCb ? this.logCb(d) : null))
+
+    loggerInstance.on('logger-warn', (d) =>
+      this.warnCb ? this.warnCb(d) : null
+    )
+
+    loggerInstance.on('logger-info', (d) =>
+      this.infoCb ? this.infoCb(d) : null
+    )
+    loggerInstance.on('logger-error', (d) =>
+      this.errorCb ? this.errorCb(d) : null
+    )
+  }
+
+  log(cb) {
+    if (typeof cb !== 'function') {
+      throw new Error('Callback has to be a function')
+    }
+
+    this.logCb = cb
+  }
+
+  info(cb) {
+    if (typeof cb !== 'function') {
+      throw new Error('Callback has to be a function')
+    }
+    this.infoCb = cb
+  }
+
+  warn(cb) {
+    if (typeof cb !== 'function') {
+      throw new Error('Callback has to be a function')
+    }
+    this.warnCb = cb
+  }
+
+  error(cb) {
+    if (typeof cb !== 'function') {
+      throw new Error('Callback has to be a function')
+    }
+
+    this.errorCb = cb
+  }
+}
+
 const loggerObject = new Logger()
 
 const operations = {
+  Plugin,
   Logger,
   log: (args) => loggerObject.log(args),
   info: (args) => loggerObject.info(args),
