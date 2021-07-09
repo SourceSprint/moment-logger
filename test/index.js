@@ -15,7 +15,7 @@ const sampleObject = {
   }
 }
 
-describe('Logger function test', () => {
+describe('Logger Function Test', () => {
   const operations = ['log', 'warn', 'info', 'error']
 
   for (let operation of operations) {
@@ -35,7 +35,7 @@ describe('Logger function test', () => {
           throw new Error('Display failed: Empty response')
         }
       } catch (e) {
-        assert.fail(e)
+        assert(false, e)
       }
     }
 
@@ -53,7 +53,7 @@ describe('Logger function test', () => {
           throw new Error('Display failed: Empty response')
         }
       } catch (e) {
-        assert.fail(e)
+        assert(false, e)
       }
     }
 
@@ -64,7 +64,7 @@ describe('Logger function test', () => {
   }
 })
 
-describe('Logger class test', () => {
+describe('Logger Class Test', () => {
   const operationcheck3 = () => {
     try {
       const log = new logger.Logger({
@@ -83,7 +83,7 @@ describe('Logger class test', () => {
         throw new Error('Display failed: Empty response')
       }
     } catch (e) {
-      assert.fail(e)
+      assert(false, e)
     }
   }
 
@@ -105,10 +105,43 @@ describe('Logger class test', () => {
         throw new Error('Display failed: Empty response')
       }
     } catch (e) {
-      assert.fail(e)
+      assert(false, e)
     }
   }
 
   it(`logs txt with prefix and suffix`, operationcheck3)
   it(`logs an object with prefix and suffix`, operationcheck4)
+})
+
+describe('Logger Plugin Test', () => {
+  it('should create a plugin and link it to a logger instance', (done) => {
+    try {
+      const plugin = new logger.Plugin()
+      const loggerInstance = new logger.Logger()
+      plugin.link(loggerInstance)
+      done()
+    } catch (e) {
+      assert(false, e)
+    }
+  })
+
+  it('should forward logger output to the plugin', (done) => {
+    try {
+      const test = 'lorem ipsum'
+
+      const plugin = new logger.Plugin()
+
+      plugin.log((message) => {
+        assert(message == test)
+        done()
+      })
+
+      const loggerInstance = new logger.Logger()
+      plugin.link(loggerInstance)
+
+      loggerInstance.log(test)
+    } catch (e) {
+      assert(false, e)
+    }
+  })
 })
