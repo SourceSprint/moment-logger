@@ -65,7 +65,8 @@ class Logger extends Events {
     prefix = '',
     suffix = '',
     noType = false,
-    noTimestamp = false
+    noTimestamp = false,
+    pluginPassthrough = false
   } = {}) {
     super()
     this.setMaxListeners(0)
@@ -74,6 +75,7 @@ class Logger extends Events {
     this.suffix = suffix
     this.noType = noType
     this.noTimestamp = noTimestamp
+    this.pluginPassthrough = pluginPassthrough
   }
 
   /**
@@ -99,7 +101,11 @@ class Logger extends Events {
       message
     }
 
-    this.emit('logger-log', message)
+    if (this.pluginPassthrough) {
+      this.emit('logger-log', data)
+    } else {
+      this.emit('logger-log', message)
+    }
 
     return display(payload)
   }
@@ -126,7 +132,11 @@ class Logger extends Events {
       message
     }
 
-    this.emit('logger-warn', message)
+    if (this.pluginPassthrough) {
+      this.emit('logger-warn', data)
+    } else {
+      this.emit('logger-warn', message)
+    }
 
     return display(payload)
   }
@@ -153,7 +163,11 @@ class Logger extends Events {
       message
     }
 
-    this.emit('logger-info', message)
+    if (this.pluginPassthrough) {
+      this.emit('logger-info', data)
+    } else {
+      this.emit('logger-info', message)
+    }
 
     return display(payload)
   }
@@ -180,7 +194,11 @@ class Logger extends Events {
       message
     }
 
-    this.emit('logger-error', message)
+    if (this.pluginPassthrough) {
+      this.emit('logger-error', data)
+    } else {
+      this.emit('logger-error', message)
+    }
 
     return display(payload)
   }
@@ -207,7 +225,11 @@ class Logger extends Events {
       message
     }
 
-    this.emit('logger-blank', message)
+    if (this.pluginPassthrough) {
+      this.emit('logger-blank', data)
+    } else {
+      this.emit('logger-blank', message)
+    }
 
     return display(payload)
   }

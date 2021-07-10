@@ -144,4 +144,30 @@ describe('Logger Plugin Test', () => {
       assert(false, e)
     }
   })
+
+  it(`should forward pre-processed data to the plugin`, (done) => {
+    try {
+      const testObject = {
+        name: 'john doe',
+        age: 25
+      }
+
+      const plugin = new logger.Plugin()
+
+      plugin.log((message) => {
+        assert(typeof message == 'object')
+        done()
+      })
+
+      const loggerInstance = new logger.Logger({
+        pluginPassthrough: true
+      })
+
+      plugin.link(loggerInstance)
+
+      loggerInstance.log(testObject)
+    } catch (e) {
+      assert(false, e)
+    }
+  })
 })
