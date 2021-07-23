@@ -2,11 +2,21 @@ const chalk = require('chalk')
 const Events = require('events')
 
 const { LogTypes } = require('./models')
-const { parseTime, collapse } = require('./utils')
+const { parseTime, collapse, throttle } = require('./utils')
 
+/**
+ * Format message
+ * @param {String} prefix Message prefix
+ * @param {String} message Composed message
+ * @param {String} suffix Message suffix
+ * @param {Boolean} noTimestamp Hide timestamp
+ * @returns {String}
+ */
 const format = (prefix, message, suffix, noTimestamp) => {
   const { hours, minutes, seconds, milliseconds } = parseTime()
-  const parsed = `[${hours}:${minutes}:${seconds}:${milliseconds}]`
+  const paddedms = `${milliseconds}`.padStart(3, 0)
+
+  const parsed = `[${hours}:${minutes}:${seconds}:${paddedms}]`
   const padded = parsed.padEnd(20 - parsed.length)
   const composed = `${prefix} ${message} ${suffix}`.trim()
 
@@ -60,13 +70,28 @@ const display = (payload) => {
   return data
 }
 
+/**
+ * Logger
+ * @class Logger
+ */
 class Logger extends Events {
+  /**
+   *
+   * @param {Object} config
+   * @param {String} [config.prefix=''] Message prefix
+   * @param {String} [config.suffix=''] Message suffix
+   * @param {Boolean} [config.noType=false] Hide message type
+   * @param {Boolean} [config.noTimestamp=false] Hide timestamp
+   * @param {Boolean} [config.pluginPassthrough=false] Forward raw logger output to plugins
+   * @param {Number} [config.pluginThrottle=0] Throttle duration for plugin output
+   */
   constructor({
     prefix = '',
     suffix = '',
     noType = false,
     noTimestamp = false,
-    pluginPassthrough = false
+    pluginPassthrough = false,
+    pluginThrottle = 0
   } = {}) {
     super()
     this.setMaxListeners(0)
@@ -75,12 +100,14 @@ class Logger extends Events {
     this.suffix = suffix
     this.noType = noType
     this.noTimestamp = noTimestamp
+    this.pluginThrottle = pluginThrottle
     this.pluginPassthrough = pluginPassthrough
   }
 
   /**
    * Display message with log formatting with timestamp
    * @param  {...any} data
+   * @returns {String}
    */
   log(...data) {
     const message = collapse(data)
@@ -101,10 +128,18 @@ class Logger extends Events {
       message
     }
 
+    const feedback = (m) => this.emit('logger-log', m)
+
+    let feedback_ = feedback
+
+    if (this.pluginThrottle) {
+      feedback_ = throttle(feedback, this.pluginThrottle)
+    }
+
     if (this.pluginPassthrough) {
-      this.emit('logger-log', data)
+      feedback_(data)
     } else {
-      this.emit('logger-log', message)
+      feedback_(message)
     }
 
     return display(payload)
@@ -112,6 +147,7 @@ class Logger extends Events {
   /**
    * Display message with warning format with timestamp
    * @param  {...any} data
+   * @returns {String}
    */
   warn(...data) {
     const message = collapse(data)
@@ -132,17 +168,25 @@ class Logger extends Events {
       message
     }
 
-    if (this.pluginPassthrough) {
-      this.emit('logger-warn', data)
-    } else {
-      this.emit('logger-warn', message)
+    const feedback = (m) => this.emit('logger-warn', m)
+
+    let feedback_ = feedback
+
+    if (this.pluginThrottle) {
+      feedback_ = throttle(feedback, this.pluginThrottle)
     }
 
+    if (this.pluginPassthrough) {
+      feedback_(data)
+    } else {
+      feedback_(message)
+    }
     return display(payload)
   }
   /**
    *  Display message with information format with timestamp
    * @param  {...any} data
+   * @returns {String}
    */
   info(...data) {
     const message = collapse(data)
@@ -163,10 +207,18 @@ class Logger extends Events {
       message
     }
 
+    const feedback = (m) => this.emit('logger-info', m)
+
+    let feedback_ = feedback
+
+    if (this.pluginThrottle) {
+      feedback_ = throttle(feedback, this.pluginThrottle)
+    }
+
     if (this.pluginPassthrough) {
-      this.emit('logger-info', data)
+      feedback_(data)
     } else {
-      this.emit('logger-info', message)
+      feedback_(message)
     }
 
     return display(payload)
@@ -174,6 +226,7 @@ class Logger extends Events {
   /**
    * Display message with error format with timestamp
    * @param  {...any} data
+   * @returns {String}
    */
   error(...data) {
     const message = collapse(data)
@@ -194,10 +247,18 @@ class Logger extends Events {
       message
     }
 
+    const feedback = (m) => this.emit('logger-error', m)
+
+    let feedback_ = feedback
+
+    if (this.pluginThrottle) {
+      feedback_ = throttle(feedback, this.pluginThrottle)
+    }
+
     if (this.pluginPassthrough) {
-      this.emit('logger-error', data)
+      feedback_(data)
     } else {
-      this.emit('logger-error', message)
+      feedback_(message)
     }
 
     return display(payload)
@@ -205,6 +266,7 @@ class Logger extends Events {
   /**
    * Display a message with only timestamp
    * @param  {...any} data
+   * @returns {String}
    */
   blank(...data) {
     const message = collapse(data)
@@ -225,16 +287,25 @@ class Logger extends Events {
       message
     }
 
+    const feedback = (m) => this.emit('logger-blank', m)
+
+    let feedback_ = feedback
+
+    if (this.pluginThrottle) {
+      feedback_ = throttle(feedback, this.pluginThrottle)
+    }
+
     if (this.pluginPassthrough) {
-      this.emit('logger-blank', data)
+      feedback_(data)
     } else {
-      this.emit('logger-blank', message)
+      feedback_(message)
     }
 
     return display(payload)
   }
   /**
    *  Clears the console
+   * @returns {String}
    */
   clear() {
     this.emit('logger-clear')
@@ -242,6 +313,7 @@ class Logger extends Events {
   }
   /**
    * Wait for input
+   * @returns {String}
    */
   pause() {
     if (process.stdin.isTTY) {
@@ -254,6 +326,10 @@ class Logger extends Events {
   }
 }
 
+/**
+ * Plugin class
+ * @class Plugin
+ */
 class Plugin {
   constructor({ name = '' } = {}) {
     this.name = name
@@ -264,6 +340,10 @@ class Plugin {
     this.errorCb = null
   }
 
+  /**
+   * Link plugin to logger
+   * @param {Logger} loggerInstance
+   */
   link(loggerInstance) {
     const isLoggerInstance = loggerInstance instanceof Logger
 
@@ -285,6 +365,10 @@ class Plugin {
     )
   }
 
+  /**
+   * Assign log callback
+   * @param {function} cb Log Callback
+   */
   log(cb) {
     if (typeof cb !== 'function') {
       throw new Error('Callback has to be a function')
@@ -293,6 +377,10 @@ class Plugin {
     this.logCb = cb
   }
 
+  /**
+   * Assign info callback
+   * @param {function} cb Info callback
+   */
   info(cb) {
     if (typeof cb !== 'function') {
       throw new Error('Callback has to be a function')
@@ -300,6 +388,10 @@ class Plugin {
     this.infoCb = cb
   }
 
+  /**
+   * Assign warning callback
+   * @param {function} cb Warning callback
+   */
   warn(cb) {
     if (typeof cb !== 'function') {
       throw new Error('Callback has to be a function')
@@ -307,6 +399,10 @@ class Plugin {
     this.warnCb = cb
   }
 
+  /**
+   * Assign error callback
+   * @param {function} cb Error callback
+   */
   error(cb) {
     if (typeof cb !== 'function') {
       throw new Error('Callback has to be a function')
@@ -321,12 +417,12 @@ const loggerObject = new Logger()
 const operations = {
   Plugin,
   Logger,
+  pause: () => loggerObject.pause(),
   log: (args) => loggerObject.log(args),
   info: (args) => loggerObject.info(args),
   warn: (args) => loggerObject.warn(args),
   error: (args) => loggerObject.error(args),
-  blank: (args) => loggerObject.blank(args),
-  pause: () => loggerObject.pause()
+  blank: (args) => loggerObject.blank(args)
 }
 
 module.exports = operations
