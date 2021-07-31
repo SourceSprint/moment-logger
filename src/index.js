@@ -5,6 +5,14 @@ const { LogTypes } = require('./models')
 const { parseTime, collapse, throttle } = require('./utils')
 
 /**
+ * Pad string
+ * @param {String} [x=''] String to pad
+ * @param {*} [a=0] Amount of padding
+ * @returns {String}
+ */
+const pad = (x = '', a = 0) => `${x}`.padStart(a, 0)
+
+/**
  * Format message
  * @param {String} prefix Message prefix
  * @param {String} message Composed message
@@ -14,9 +22,16 @@ const { parseTime, collapse, throttle } = require('./utils')
  */
 const format = (prefix, message, suffix, noTimestamp) => {
   const { hours, minutes, seconds, milliseconds } = parseTime()
-  const paddedms = `${milliseconds}`.padStart(3, 0)
 
-  const parsed = `[${hours}:${minutes}:${seconds}:${paddedms}]`
+  const parsed = [
+    { value: hours, padding: 2 },
+    { value: minutes, padding: 2 },
+    { value: seconds, padding: 2 },
+    { value: milliseconds, padding: 3 }
+  ]
+    .map(({ value, padding }) => pad(value, padding))
+    .join(':')
+
   const padded = parsed.padEnd(20 - parsed.length)
   const composed = `${prefix} ${message} ${suffix}`.trim()
 
@@ -59,7 +74,7 @@ const display = (payload) => {
     )
   }
 
-  const data = `${header}${body}`
+  const data = `${header} ${body}`
 
   if (isError) {
     data.split('\n').forEach((line) => process.stderr.write(`${line}\n`))
