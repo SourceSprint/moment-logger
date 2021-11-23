@@ -157,12 +157,22 @@ const display = (payload: string | DisplayOptions) => {
 }
 
 
+interface LoggerClass {
+  log: (...args: any[]) => string;
+  info: (...args: any[]) => string;
+  warn: (...args: any[]) => string;
+  error: (...args: any[]) => string;
+  blank: (...args: any[]) => string;
+  clear: () => string;
+  pause: () => string;
+}
+
 
 /**
  * Logger
  * @class Logger
  */
-class Logger extends Events {
+class Logger extends Events implements LoggerClass {
   /**
    *
    * @param {Object} config
@@ -408,6 +418,11 @@ class Logger extends Events {
    * @returns {String}
    */
   pause(): string {
+
+    if (DEFAULTS.environment === Environments.BROWSER) {
+      throw new Error('Pause is not supported in browser environment')
+    }
+
     if (DEFAULTS.environment === Environments.NODE) {
 
       if (process.stdin.isTTY) {
