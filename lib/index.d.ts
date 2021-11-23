@@ -9,11 +9,20 @@ interface LoggerOptions {
     pluginThrottle?: number;
     showErrorStack?: boolean;
 }
+interface LoggerClass {
+    log: (...args: any[]) => string;
+    info: (...args: any[]) => string;
+    warn: (...args: any[]) => string;
+    error: (...args: any[]) => string;
+    blank: (...args: any[]) => string;
+    clear: () => string;
+    pause: () => string;
+}
 /**
  * Logger
  * @class Logger
  */
-declare class Logger extends Events {
+declare class Logger extends Events implements LoggerClass {
     /**
      *
      * @param {Object} config
