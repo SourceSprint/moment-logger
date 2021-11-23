@@ -1,5 +1,7 @@
 const assert = require('assert')
-const logger = require('../src')
+
+const logger = require('../lib').default
+
 
 const sampleTxt = 'Lorem, ipsum dolor sit amet consectetur adipisicing elit.'
 
@@ -16,16 +18,35 @@ const sampleObject = {
 }
 
 describe('Logger Function Test', () => {
-  const operations = ['log', 'warn', 'info', 'error']
+
+
+  const operations = [{
+      name: 'log',
+      handler: logger.log,
+    }, {
+      name: 'warn',
+      handler: logger.warn
+    },
+    {
+      name: 'info',
+      handler: logger.info
+    },
+    {
+      name: 'error',
+      handler: logger.error
+    }
+  ]
+
+
 
   for (let operation of operations) {
     /* jshint -W083 */
 
-    const operationcheck1 = () => {
+    const stringTest = () => {
       try {
-        const handler = logger[operation]
 
-        const feedback = handler(sampleTxt)
+
+        const feedback = operation.handler(sampleTxt)
 
         if (!feedback) {
           throw new Error('Display failed: Null response')
@@ -39,11 +60,10 @@ describe('Logger Function Test', () => {
       }
     }
 
-    const operationcheck2 = () => {
+    const objectTest = () => {
       try {
-        const handler = logger[operation]
 
-        const feedback = handler(sampleObject)
+        const feedback = operation.handler(sampleObject)
 
         if (!feedback) {
           throw new Error('Display failed: Null response')
@@ -57,11 +77,55 @@ describe('Logger Function Test', () => {
       }
     }
 
-    it(`logs txt .${operation}`, operationcheck1)
-    it(`logs an object .${operation}`, operationcheck2)
+    const combinedTest = () => {
+      try {
+
+        const feedback = operation.handler(sampleTxt, sampleObject)
+
+        if (!feedback) {
+          throw new Error('Display failed: Null response')
+        }
+
+        if (!feedback.trim().length) {
+          throw new Error('Display failed: Empty response')
+        }
+
+      } catch (e) {
+        assert(false, e)
+      }
+    }
+
+    it(`logs txt .${operation.name}`, stringTest)
+    it(`logs an object .${operation.name}`, objectTest)
+    it(`logs txt and an object .${operation.name}`, combinedTest)
 
     /* jshint +W083 */
   }
+
+
+  const errorTest = () => {
+
+    try {
+
+      const log = new logger.Logger({
+        prefix: 'error-stack-test',
+        showErrorStack: true
+      })
+
+      const error = new Error('This is an error')
+
+      const feedback = log.error(error)
+
+      if (!feedback.includes('stack')) {
+        throw new Error('Display failed: No stack trace')
+      }
+
+    } catch (e) {
+      assert(true, e)
+    }
+  }
+
+  it(`logs the error stack`, errorTest)
 })
 
 describe('Logger Class Test', () => {
