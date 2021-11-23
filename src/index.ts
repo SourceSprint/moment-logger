@@ -225,8 +225,7 @@ class Logger extends Events implements LoggerClass {
     }
   }
 
-  log() {
-    const args = Array.prototype.slice.call(arguments);
+  log(...args: any[]) {
     const message = collapse(args, this.collapseOptions)
 
     const payload = {
@@ -256,8 +255,7 @@ class Logger extends Events implements LoggerClass {
   }
 
 
-  warn() {
-    const args = Array.prototype.slice.call(arguments);
+  warn(...args: any[]) {
     const message = collapse(args, this.collapseOptions)
 
 
@@ -294,8 +292,7 @@ class Logger extends Events implements LoggerClass {
    * @param  {...any} data
    * @returns {String}
    */
-  info(): string {
-    const args = Array.prototype.slice.call(arguments);
+  info(...args: any[]): string {
     const message = collapse(args, this.collapseOptions)
 
 
@@ -333,8 +330,7 @@ class Logger extends Events implements LoggerClass {
    * @param  {...any} data
    * @returns {String}
    */
-  error(): string {
-    const args = Array.prototype.slice.call(arguments);
+  error(...args: any[]): string {
     const message = collapse(args, this.collapseOptions)
 
 
@@ -372,8 +368,7 @@ class Logger extends Events implements LoggerClass {
    * @param  {...any} data
    * @returns {String}
    */
-  blank(): string {
-    const args = Array.prototype.slice.call(arguments);
+  blank(...args: any[]): string {
     const message = collapse(args, this.collapseOptions)
 
 

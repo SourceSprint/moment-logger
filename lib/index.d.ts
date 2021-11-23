@@ -46,26 +46,26 @@ declare class Logger extends Events implements LoggerClass {
     get collapseOptions(): {
         showErrorStack: boolean;
     };
-    log(): string;
-    warn(): string;
+    log(...args: any[]): string;
+    warn(...args: any[]): string;
     /**
      *  Display message with information format with timestamp
      * @param  {...any} data
      * @returns {String}
      */
-    info(): string;
+    info(...args: any[]): string;
     /**
      * Display message with error format with timestamp
      * @param  {...any} data
      * @returns {String}
      */
-    error(): string;
+    error(...args: any[]): string;
     /**
      * Display a message with only timestamp
      * @param  {...any} data
      * @returns {String}
      */
-    blank(): string;
+    blank(...args: any[]): string;
     /**
      *  Clears the console
      * @returns {String}
@@ -120,11 +120,11 @@ declare const _default: {
     Plugin: typeof Plugin;
     Logger: typeof Logger;
     pause: () => string;
-    log: () => string;
-    info: () => string;
-    warn: () => string;
-    error: () => string;
-    blank: () => string;
+    log: (...args: any[]) => string;
+    info: (...args: any[]) => string;
+    warn: (...args: any[]) => string;
+    error: (...args: any[]) => string;
+    blank: (...args: any[]) => string;
 };
 export default _default;
 //# sourceMappingURL=index.d.ts.map
