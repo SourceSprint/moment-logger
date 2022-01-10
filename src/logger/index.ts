@@ -1,5 +1,5 @@
 import Events, { EventEmitter } from 'events'
-import { Chalk, ChalkInstance } from 'chalk'
+import chalk from 'chalk';
 
 import { collapse, throttle } from './utils'
 import { Environments, DisplayOptions, display, clear, DEFAULTS } from '../core'
@@ -63,7 +63,6 @@ export class Logger extends Events implements LoggerInstance {
     pluginPassthrough: boolean;
     pluginThrottle: number;
 
-    private chalk: ChalkInstance;
 
     constructor(config: LoggerOptions = {}) {
 
@@ -71,7 +70,6 @@ export class Logger extends Events implements LoggerInstance {
         super()
         this.setMaxListeners(0)
 
-        this.chalk = new Chalk()
 
         this.prefix = config.prefix || ''
         this.suffix = config.suffix || ''
@@ -106,7 +104,7 @@ export class Logger extends Events implements LoggerInstance {
             type: LogTypes.LOG,
             start: 6,
             end: 10,
-            modifier: (...t) => this.chalk.white.bgGray.bold(t),
+            modifier: (...t) => chalk.white.bgGray.bold(t),
             message
         }
 
@@ -139,7 +137,7 @@ export class Logger extends Events implements LoggerInstance {
             type: LogTypes.WARN,
             start: 7,
             end: 10,
-            modifier: (...t) => this.chalk.white.bgHex('#ffa500').bold(t),
+            modifier: (...t) => chalk.white.bgHex('#ffa500').bold(t),
             message
         }
 
@@ -178,7 +176,7 @@ export class Logger extends Events implements LoggerInstance {
             type: LogTypes.INFO,
             start: 7,
             end: 10,
-            modifier: (...t) => this.chalk.white.bgBlue.bold(t),
+            modifier: (...t) => chalk.white.bgBlue.bold(t),
             message
         }
 
@@ -218,7 +216,7 @@ export class Logger extends Events implements LoggerInstance {
             type: LogTypes.ERROR,
             start: 8,
             end: 10,
-            modifier: (...t) => this.chalk.white.bgRed.bold(t),
+            modifier: (...t) => chalk.white.bgRed.bold(t),
             message
         }
 
@@ -258,7 +256,7 @@ export class Logger extends Events implements LoggerInstance {
             type: LogTypes.BLANK,
             start: 8,
             end: 10,
-            modifier: (...t) => this.chalk.white.bgGray.dim(t),
+            modifier: (...t) => chalk.white.bgGray.dim(t),
             message
         }
 

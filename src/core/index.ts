@@ -1,4 +1,4 @@
-import { Chalk } from 'chalk'
+import chalk from 'chalk'
 import { LoggerOptions, LogTypes } from '../logger'
 import { parseTime } from '../logger/utils'
 
@@ -18,9 +18,6 @@ enum ConsoleTypes {
     LOG = 'log',
     ERROR = 'error'
 }
-
-
-const chalk = new Chalk()
 
 
 /**
