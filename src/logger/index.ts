@@ -1,8 +1,21 @@
 import Events, { EventEmitter } from 'events'
+
 import chalk from 'chalk';
+import figlet from 'figlet';
 
 import { collapse, throttle } from './utils'
 import { Environments, DisplayOptions, display, clear, DEFAULTS } from '../core'
+
+export interface FigletConfiguration extends figlet.Options {
+    delay?: number
+}
+
+
+const defaultFigletConfiguration: FigletConfiguration = {
+    horizontalLayout: 'default',
+    verticalLayout: 'fitted',
+    delay: 0
+};
 
 export interface LoggerOptions {
     prefix?: string;
@@ -12,6 +25,7 @@ export interface LoggerOptions {
     pluginPassthrough?: boolean;
     pluginThrottle?: number;
     showErrorStack?: boolean;
+    figlet?: FigletConfiguration;
 }
 
 
@@ -20,10 +34,12 @@ export enum LogTypes {
     INFO = 'info',
     WARN = 'warn',
     ERROR = 'error',
-    BLANK = 'blank'
+    BLANK = 'blank',
+    ART = 'art'
 }
 
 type LoggerFunction = (...args: any[]) => string | void;
+type PromisedLoggerFunction = (...args: any[]) => Promise<string | void>;
 
 
 
@@ -34,7 +50,8 @@ export interface LoggerInstance extends EventEmitter {
     error: LoggerFunction;
     blank: LoggerFunction;
     clear: LoggerFunction;
-    pause: LoggerFunction;
+    pause: PromisedLoggerFunction;
+    art: PromisedLoggerFunction;
 }
 
 
@@ -55,13 +72,14 @@ export class Logger extends Events implements LoggerInstance {
      */
 
 
-    prefix: string;
-    suffix: string;
-    noType: boolean;
-    noTimestamp: boolean;
-    showErrorStack: boolean;
-    pluginPassthrough: boolean;
-    pluginThrottle: number;
+    private prefix: string;
+    private suffix: string;
+    private noType: boolean;
+    private noTimestamp: boolean;
+    private showErrorStack: boolean;
+    private pluginPassthrough: boolean;
+    private pluginThrottle: number;
+    private figlet: FigletConfiguration;
 
 
     constructor(config: LoggerOptions = {}) {
@@ -78,6 +96,7 @@ export class Logger extends Events implements LoggerInstance {
         this.showErrorStack = config.showErrorStack || false
         this.pluginPassthrough = config.pluginPassthrough || false
         this.pluginThrottle = config.pluginThrottle || 0
+        this.figlet = config.figlet || defaultFigletConfiguration
     }
 
     get options(): LoggerOptions {
@@ -293,10 +312,12 @@ export class Logger extends Events implements LoggerInstance {
      * Wait for input
      * @returns {String}
      */
-    pause = (): void => {
+    pause = (): Promise<string> => new Promise((resolve, reject) => {
+
+        const startTimestamp = Date.now()
 
         if (DEFAULTS.environment === Environments.BROWSER) {
-            throw new Error('Pause is not supported in browser environment')
+            return reject(new Error('Pause is not supported in browser environment'))
         }
 
         if (DEFAULTS.environment === Environments.NODE) {
@@ -306,9 +327,87 @@ export class Logger extends Events implements LoggerInstance {
             }
 
             process.stdin.resume()
-            process.stdin.on('data', process.exit.bind(process, 0))
+            process.stdin.on('data', () => {
+
+                const endTimestamp = Date.now()
+
+                const diff = endTimestamp - startTimestamp
+                process.stdout.clearLine(0);
+                process.stdout.cursorTo(0);
+                resolve(diff.toLocaleString())
+            })
 
         }
 
-    }
+    })
+
+    art = async (...args: any[]): Promise<string> => new Promise((resolve) => {
+        const startTimestamp = Date.now()
+
+        const message = collapse(args, this.collapseOptions)
+
+        const feedback = (m: any): void => {
+            this.emit('logger-art', m)
+        }
+
+
+        let feedback_ = feedback
+
+        if (this.pluginThrottle) {
+            feedback_ = throttle(feedback, this.pluginThrottle)
+        }
+
+        if (this.pluginPassthrough) {
+            feedback_(args)
+        } else {
+            feedback_(message)
+        }
+
+
+
+        const options: figlet.Options = {
+            ...this.figlet
+        }
+
+
+        figlet.text(message, options, (err: Error | null, data: string | undefined) => {
+            if (err) {
+                this.log(message)
+                const endTimestamp = Date.now()
+                const diff = endTimestamp - startTimestamp
+                resolve(diff.toLocaleString())
+                return
+            }
+
+
+            const payload: DisplayOptions = {
+                noTimestamp: true,
+                noType: true,
+                type: LogTypes.ART,
+                start: 8,
+                end: 10,
+                modifier: (...t) => chalk.white.bgGray.dim(t),
+                message: `\n${data}\n`
+            }
+
+
+            display(payload)
+
+
+            if (this.figlet.delay) {
+                setTimeout(() => {
+                    const endTimestamp = Date.now()
+                    const diff = endTimestamp - startTimestamp
+                    resolve(diff.toLocaleString())
+
+                }, this.figlet.delay)
+            } else {
+                const endTimestamp = Date.now()
+                const diff = endTimestamp - startTimestamp
+
+                resolve(diff.toLocaleString())
+            }
+        })
+
+    })
 }
