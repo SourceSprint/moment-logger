@@ -7,7 +7,10 @@ export enum Environments {
     NODE = 'node'
 }
 
-const isProcessAvailable = typeof process !== 'undefined'
+// check if process is avaiable
+// https://stackoverflow.com/a/34550964/5844218
+
+const isProcessAvailable = typeof window === 'undefined' || typeof process === 'object' && process.title === 'node'
 
 export const DEFAULTS = {
     environment: isProcessAvailable ? Environments.NODE : Environments.BROWSER,
@@ -48,8 +51,10 @@ const format = (prefix: string, message: string, suffix: string, noTimestamp: bo
         .map(({ value, padding }) => pad(value, padding))
         .join(':')
 
+
     const padded = parsed.padEnd(20 - parsed.length)
-    const composed = `${prefix} ${message} ${suffix}`.trim()
+    
+    const composed = `${prefix} ${message} ${suffix}`
 
     if (noTimestamp) {
         return composed
@@ -86,15 +91,17 @@ const toConsole = (message: string, mode: ConsoleTypes): void => {
 
     const output = isProcessAvailable ? process : process_
 
+    const escaped: string = message.replace(/\\n/g, '\n\t\t')
+
+
     switch (mode) {
         case ConsoleTypes.LOG: {
-            message.split('\n').forEach(x => output.stdout.write(x + '\n'))
+            output.stdout.write(escaped)
             break;
         }
 
         case ConsoleTypes.ERROR: {
-            const escaped: string = message.replace(/\\n/g, '\n\t\t')
-            escaped.split('\n').forEach(x => output.stderr.write(x + '\n'))
+            output.stderr.write(escaped)
             break
         }
 
@@ -128,8 +135,15 @@ export const display = (payload: string | DisplayOptions) => {
 
     let header = ''
 
+    const isArt = type == LogTypes.ART
     const isBlank = type == LogTypes.BLANK
     const isError = type == LogTypes.ERROR
+
+
+    if (isArt) {
+        toConsole(body, ConsoleTypes.LOG)
+        return body
+    }
 
     if (!isBlank && !noType) {
         const castedType: string = type.toString()
@@ -153,6 +167,7 @@ export const display = (payload: string | DisplayOptions) => {
 export const clear = (): void => {
 
     if (DEFAULTS.isTTY) {
+        // this is available in all environments
         console.clear()
     }
 }

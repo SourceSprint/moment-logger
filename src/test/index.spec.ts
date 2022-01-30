@@ -41,7 +41,7 @@ describe('Logger Function Test', () => {
   {
     name: 'error',
     handler: logger.error
-  }
+  },
   ]
 
 
@@ -114,52 +114,6 @@ describe('Logger Function Test', () => {
   it(`logs the error stack`, errorTest)
 })
 
-
-// Logger Class Test
-
-describe('Logger Class Test', () => {
-
-  const operationcheck3 = () => {
-    const log = new Logger({
-      prefix: '🔥',
-      suffix: '❄️',
-      noType: true
-    })
-
-    const feedback = log.info(sampleTxt)
-
-    if (!feedback) {
-      throw new Error('Display failed: Null response')
-    }
-
-    if (!feedback.trim().length) {
-      throw new Error('Display failed: Empty response')
-    }
-  }
-
-  const operationcheck4 = () => {
-    const log = new Logger({
-      prefix: '🔥',
-      suffix: '❄️',
-      noTimestamp: true
-    })
-
-    const feedback = log.info(sampleObject)
-
-    if (!feedback) {
-      throw new Error('Display failed: Null response')
-    }
-
-    if (!feedback.trim().length) {
-      throw new Error('Display failed: Empty response')
-    }
-  }
-
-  it(`logs txt with prefix and suffix`, operationcheck3)
-  it(`logs an object with prefix and suffix`, operationcheck4)
-})
-
-
 // Logger Plugin Test
 
 describe('Logger Plugin Test', () => {
@@ -214,3 +168,60 @@ describe('Logger Plugin Test', () => {
     loggerInstance.log(testObject)
   })
 })
+
+// Logger Class Test
+
+describe('Logger Class Test', () => {
+
+  const operationcheck3 = () => {
+    const log = new Logger({
+      prefix: '🔥',
+      suffix: '❄️',
+      noType: true
+    })
+
+    const feedback = log.info(sampleTxt)
+
+    if (!feedback) {
+      throw new Error('Display failed: Null response')
+    }
+
+    if (!feedback.trim().length) {
+      throw new Error('Display failed: Empty response')
+    }
+  }
+
+  const operationcheck4 = () => {
+    const log = new Logger({
+      prefix: '🔥',
+      suffix: '❄️',
+      noTimestamp: true
+    })
+
+    const feedback = log.info(sampleObject)
+
+    if (!feedback) {
+      throw new Error('Display failed: Null response')
+    }
+
+    if (!feedback.trim().length) {
+      throw new Error('Display failed: Empty response')
+    }
+  }
+
+  const operationcheck5 = async () => {
+    const log = new Logger({})
+    const diff = await log.art('This is fire')
+
+    if (Number(diff) > 10) {
+      throw new Error(`Too slow ${diff}ms`)
+    }
+  }
+
+  it(`logs txt with prefix and suffix`, operationcheck3)
+  it(`logs an object with prefix and suffix`, operationcheck4)
+  it(`Logs out text in form of art`, operationcheck5)
+})
+
+
+
