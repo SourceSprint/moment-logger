@@ -213,8 +213,8 @@ describe('Logger Class Test', () => {
     const log = new Logger({})
     const diff = await log.art('This is fire')
 
-    if (Number(diff) > 10) {
-      throw new Error(`Too slow ${diff}ms`)
+    if (!diff.length) {
+      throw new Error('Display failed: Empty response')
     }
   }
 
