@@ -1,23 +1,17 @@
 import Events, { EventEmitter } from 'events'
 
 import chalk from 'chalk';
-import figlet from 'figlet';
 
-import { collapse, throttle } from './utils'
+import { collapse, throttle, sleep } from './utils'
 import { Environments, DisplayOptions, display, clear, DEFAULTS } from '../core'
 
-export interface FigletOptions {
-    figlet?: typeof figlet;
-    options?: figlet.Options;
+export interface ArtOptions {
+    renderer?: Function;
     delay?: number
 }
 
 
-const defaultFigletConfiguration: FigletOptions = {
-    options: {
-        horizontalLayout: 'default',
-        verticalLayout: 'fitted',
-    },
+const defaultArtConfiguration: ArtOptions = {
     delay: 0
 };
 
@@ -29,7 +23,7 @@ export interface LoggerOptions {
     pluginPassthrough?: boolean;
     pluginThrottle?: number;
     showErrorStack?: boolean;
-    figlet?: FigletOptions;
+    artOptions?: ArtOptions;
 }
 
 
@@ -84,7 +78,7 @@ export class Logger extends Events implements LoggerInstance {
     private showErrorStack: boolean;
     private pluginPassthrough: boolean;
     private pluginThrottle: number;
-    private figlet: FigletOptions;
+    private artOptions: ArtOptions;
 
 
     constructor(config: LoggerOptions = {}) {
@@ -101,7 +95,7 @@ export class Logger extends Events implements LoggerInstance {
         this.showErrorStack = config.showErrorStack || false
         this.pluginPassthrough = config.pluginPassthrough || false
         this.pluginThrottle = config.pluginThrottle || 0
-        this.figlet = config.figlet || defaultFigletConfiguration
+        this.artOptions = config.artOptions || defaultArtConfiguration
     }
 
     get options(): LoggerOptions {
@@ -377,7 +371,9 @@ export class Logger extends Events implements LoggerInstance {
 
     })
 
-    art = async (...args: any[]): Promise<string> => new Promise((resolve) => {
+
+    art = async (...args: any[]): Promise<string> => {
+
         const startTimestamp = Date.now()
 
         const message = collapse(args, this.collapseOptions)
@@ -400,60 +396,39 @@ export class Logger extends Events implements LoggerInstance {
         }
 
 
-        function resolveDiff() {
-            const endTimestamp = Date.now()
-            const diff = endTimestamp - startTimestamp
-            resolve(diff.toLocaleString())
-        }
+        let data = message
 
-        const figletFallback = (text: string) => {
-            this.log(message)
-            resolveDiff()
-        }
+        if (this.artOptions.renderer) {
 
-        // use figlet if injected in the logger instance
-        if (this.figlet.figlet) {
-
-            const options: figlet.Options = {
-                ...this.figlet.options
+            try {
+                data = await this.artOptions.renderer(message)
+            } catch (_) {
+                //
             }
-
-            figlet.text(message, options, (err: Error | null, data: string | undefined) => {
-                if (err) {
-                    figletFallback(message)
-                    return
-                }
-
-
-                const payload: DisplayOptions = {
-                    noTimestamp: true,
-                    noType: true,
-                    type: LogTypes.ART,
-                    start: 8,
-                    end: 10,
-                    modifier: (...t) => chalk.white.bgGray.dim(t),
-                    message: `\n${data}\n`
-                }
-
-
-                display(payload)
-
-
-                if (!this.figlet.delay) {
-                    resolveDiff()
-                    return
-                }
-
-                setTimeout(() => resolveDiff(), this.figlet.delay)
-
-            })
         }
 
-        else {
-            figletFallback(message)
-            return
+        const payload: DisplayOptions = {
+            noTimestamp: true,
+            noType: true,
+            type: LogTypes.ART,
+            start: 8,
+            end: 10,
+            message: `\n${data}\n`
         }
 
+        display(payload)
 
-    })
+
+        if (this.artOptions.delay) {
+            await sleep(this.artOptions.delay)
+        }
+
+        const endTimestamp = Date.now()
+        const diff = endTimestamp - startTimestamp
+        return diff.toLocaleString()
+
+    }
+
+
+
 }
