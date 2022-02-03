@@ -1,6 +1,7 @@
 import 'mocha'
 import * as chai from 'chai'
 
+import figlet from 'figlet'
 import logger, { Logger, Plugin } from '../'
 
 const sampleTxt = 'Lorem, ipsum dolor sit amet consectetur adipisicing elit.'
@@ -218,9 +219,23 @@ describe('Logger Class Test', () => {
     }
   }
 
+  const operationcheck6 = async () => {
+    const log = new Logger({
+      figlet: {
+        figlet: figlet
+      }
+    })
+    const diff = await log.art('This is fire')
+
+    if (!diff.length) {
+      throw new Error('Display failed: Empty response')
+    }
+  }
+
   it(`logs txt with prefix and suffix`, operationcheck3)
   it(`logs an object with prefix and suffix`, operationcheck4)
-  it(`Logs out text in form of art`, operationcheck5)
+  it(`Logs out text in form of art (fallback)`, operationcheck5)
+  it(`Logs out text in form of art`, operationcheck6)
 })
 
 
