@@ -1,6 +1,6 @@
 {
   "name": "moment-logger",
-  "version": "1.0.5-7",
+  "version": "1.0.5-8",
   "description": "Logging with timestamps",
   "main": "dist/index.js",
   "files": [

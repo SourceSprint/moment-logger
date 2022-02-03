@@ -1,3 +1,7 @@
+export function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 const replacer = (key: string, value: any) => {
   switch (true) {
     // case typeof value === 'string': {
