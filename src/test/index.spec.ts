@@ -1,6 +1,8 @@
 import 'mocha'
 import * as chai from 'chai'
 
+import { promisify } from 'util'
+
 import figlet from 'figlet'
 import logger, { Logger, Plugin } from '../'
 
@@ -220,11 +222,20 @@ describe('Logger Class Test', () => {
   }
 
   const operationcheck6 = async () => {
+
+    const promisedfiglet = promisify(figlet.text).bind(figlet.text)
+
+    const renderer = async (text: string) => {
+      return await promisedfiglet(text)
+    }
+
     const log = new Logger({
-      figlet: {
-        figlet: figlet
+      artOptions: {
+        renderer
       }
     })
+
+
     const diff = await log.art('This is fire')
 
     if (!diff.length) {
