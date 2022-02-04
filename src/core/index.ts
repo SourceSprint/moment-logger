@@ -96,12 +96,12 @@ const toConsole = (message: string, mode: ConsoleTypes): void => {
 
     switch (mode) {
         case ConsoleTypes.LOG: {
-            output.stdout.write(escaped + '\n')
+            output.stdout.write(`\n\t${escaped}`)
             break;
         }
 
         case ConsoleTypes.ERROR: {
-            output.stderr.write(escaped + '\n')
+            output.stderr.write(`\n\t${escaped}`)
             break
         }
 

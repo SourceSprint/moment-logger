@@ -61,7 +61,7 @@ interface CollapseOptions {
 }
 
 
-const collapse = (data: Array<Error | Object>, options: CollapseOptions) => {
+export const collapse = (data: Array<Error | Object>, options: CollapseOptions) => {
   let composed = []
 
 
@@ -90,7 +90,7 @@ const collapse = (data: Array<Error | Object>, options: CollapseOptions) => {
 
   }
 
-  return composed.join('\n')
+  return composed.join('')
 }
 
 
@@ -109,7 +109,7 @@ interface TimeObject {
  * @returns {int} time.seconds Current second
  * @returns {int} time.milliseconds Current milliseconds
  */
-const parseTime = () => {
+export const parseTime = () => {
   const date = new Date()
 
   const hours = date.getHours()
@@ -139,7 +139,7 @@ interface QueueArguments {
  * @param {Number} delay Throttle delay
  * @returns {function}
  */
-const throttle = (fn: Function, delay: number) => {
+export const throttle = (fn: Function, delay: number) => {
   if (isNaN(delay)) {
     throw new Error('Delay must be a number')
   }
@@ -187,8 +187,3 @@ const throttle = (fn: Function, delay: number) => {
   return ret
 }
 
-export {
-  collapse,
-  throttle,
-  parseTime
-}
