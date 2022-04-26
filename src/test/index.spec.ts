@@ -176,7 +176,7 @@ describe('Logger Plugin Test', () => {
 
 describe('Logger Class Test', () => {
 
-  const operationcheck3 = () => {
+  const test3 = () => {
     const log = new Logger({
       prefix: '🔥',
       suffix: '❄️',
@@ -194,7 +194,7 @@ describe('Logger Class Test', () => {
     }
   }
 
-  const operationcheck4 = () => {
+  const test4 = () => {
     const log = new Logger({
       prefix: '🔥',
       suffix: '❄️',
@@ -212,8 +212,8 @@ describe('Logger Class Test', () => {
     }
   }
 
-  const operationcheck5 = async () => {
-    const log = new Logger({})
+  const test5 = async () => {
+    const log = new Logger()
     const diff = await log.art('This is fire')
 
     if (!diff.length) {
@@ -221,7 +221,7 @@ describe('Logger Class Test', () => {
     }
   }
 
-  const operationcheck6 = async () => {
+  const test6 = async () => {
 
     const promisedfiglet = promisify(figlet.text).bind(figlet.text)
 
@@ -243,10 +243,34 @@ describe('Logger Class Test', () => {
     }
   }
 
-  it(`logs txt with prefix and suffix`, operationcheck3)
-  it(`logs an object with prefix and suffix`, operationcheck4)
-  it(`Logs out text in form of art (fallback)`, operationcheck5)
-  it(`Logs out text in form of art`, operationcheck6)
+  const test7 = () => {
+    const log = new Logger({
+      linePrefix: 'xxx'
+    })
+
+    const diff = log.log('This is fire')
+    if (!diff.startsWith('xxx')) {
+      throw new Error('No line prefix')
+    }
+  }
+
+  const test8 = () => {
+    const log = new Logger({
+      lineSuffix: 'xxx'
+    })
+    const diff = log.log('This is fire')
+
+    if (!diff.endsWith('xxx')) {
+      throw new Error('No line suffix')
+    }
+  }
+
+  it('logs txt with prefix and suffix', test3)
+  it('logs an object with prefix and suffix', test4)
+  it('Logs out text in form of art (fallback)', test5)
+  it('Logs out text in form of art', test6)
+  it('Logs out text with line suffix', test7)
+  it('Logs out text with line prefix', test8)
 })
 
 
