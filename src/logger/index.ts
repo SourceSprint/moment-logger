@@ -18,6 +18,8 @@ const defaultArtConfiguration: ArtOptions = {
 export interface LoggerOptions {
     prefix?: string;
     suffix?: string;
+    linePrefix?: string;
+    lineSuffix?: string;
     noType?: boolean;
     noTimestamp?: boolean;
     pluginPassthrough?: boolean;
@@ -63,6 +65,8 @@ export class Logger extends Events implements LoggerInstance {
      * @param {Object} config
      * @param {String} [config.prefix=''] Message prefix
      * @param {String} [config.suffix=''] Message suffix
+     * @param {String} [config.linePrefix=''] Line prefix
+     * @param {String} [config.lineSuffix='\n'] Line suffix
      * @param {Boolean} [config.noType=false] Hide message type
      * @param {Boolean} [config.noTimestamp=false] Hide timestamp
      * @param {Boolean} [config.pluginPassthrough=false] Forward raw logger output to plugins
@@ -73,6 +77,10 @@ export class Logger extends Events implements LoggerInstance {
 
     private prefix: string;
     private suffix: string;
+
+    private linePrefix: string;
+    private lineSuffix: string;
+
     private noType: boolean;
     private noTimestamp: boolean;
     private showErrorStack: boolean;
@@ -88,14 +96,18 @@ export class Logger extends Events implements LoggerInstance {
         this.setMaxListeners(0)
 
 
-        this.prefix = config.prefix || ''
-        this.suffix = config.suffix || ''
-        this.noType = config.noType || false
-        this.noTimestamp = config.noTimestamp || false
-        this.showErrorStack = config.showErrorStack || false
-        this.pluginPassthrough = config.pluginPassthrough || false
-        this.pluginThrottle = config.pluginThrottle || 0
-        this.artOptions = config.artOptions || defaultArtConfiguration
+        this.prefix = config.prefix ?? ''
+        this.suffix = config.suffix ?? ''
+
+        this.linePrefix = config.linePrefix ?? ''
+        this.lineSuffix = config.lineSuffix ?? '\n'
+
+        this.noType = config.noType ?? false
+        this.noTimestamp = config.noTimestamp ?? false
+        this.showErrorStack = config.showErrorStack ?? false
+        this.pluginPassthrough = config.pluginPassthrough ?? false
+        this.pluginThrottle = config.pluginThrottle ?? 0
+        this.artOptions = config.artOptions ?? defaultArtConfiguration
     }
 
     get options(): LoggerOptions {
@@ -103,6 +115,8 @@ export class Logger extends Events implements LoggerInstance {
             noType: this.noType,
             prefix: this.prefix,
             suffix: this.suffix,
+            linePrefix: this.linePrefix,
+            lineSuffix: this.lineSuffix,
             noTimestamp: this.noTimestamp,
             showErrorStack: this.showErrorStack,
         }
