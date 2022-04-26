@@ -39,7 +39,16 @@ const pad = (x: number | string = '', a: any = 0): string => `${x}`.padStart(a, 
  * @param {Boolean} noTimestamp Hide timestamp
  * @returns {String}
  */
-const format = (prefix: string, message: string, suffix: string, noTimestamp: boolean): string => {
+
+interface FormatOptions {
+    prefix?: string;
+    suffix?: string;
+    noTimestamp?: boolean;
+    message?: string;
+}
+
+
+const format = (options: FormatOptions): string => {
     const { hours, minutes, seconds, milliseconds } = parseTime()
 
     const parsed = [
@@ -53,7 +62,10 @@ const format = (prefix: string, message: string, suffix: string, noTimestamp: bo
 
 
     const padded = parsed.padEnd(20 - parsed.length)
-    
+
+    const { prefix, suffix, noTimestamp, message } = options
+
+
     const composed = `${prefix} ${message} ${suffix}`
 
     if (noTimestamp) {
@@ -111,6 +123,16 @@ const toConsole = (message: string, mode: ConsoleTypes): void => {
 }
 
 
+const defaultOptions: Omit<DisplayOptions, 'type' | 'start' | 'end' | 'modifier'> = {
+    prefix: '',
+    suffix: '',
+    linePrefix: '',
+    lineSuffix: '',
+    message: '',
+    noType: false,
+    noTimestamp: false,
+}
+
 
 export const display = (payload: string | DisplayOptions) => {
 
@@ -119,19 +141,31 @@ export const display = (payload: string | DisplayOptions) => {
         return payload
     }
 
+    const normalizedPayload = Object.assign({}, defaultOptions, payload)
+
     const {
         end,
         type,
         start,
-        prefix = '',
-        suffix = '',
-        message = '',
-        noType = false,
-        noTimestamp = false,
+        message,
+        prefix,
+        suffix,
+        noType,
+        linePrefix,
+        lineSuffix,
+        noTimestamp,
         modifier = (x) => x
-    } = payload as DisplayOptions
+    } = normalizedPayload as DisplayOptions
 
-    const body = format(prefix, message, suffix, noTimestamp)
+
+    const options: FormatOptions = {
+        prefix,
+        suffix,
+        noTimestamp,
+        message
+    }
+
+    const body = format(options)
 
     let header = ''
 
@@ -151,7 +185,7 @@ export const display = (payload: string | DisplayOptions) => {
         header = modifier(castedType.padStart(start).padEnd(end).toLocaleUpperCase())
     }
 
-    const data = `${header} ${body}`
+    const data = `${linePrefix}${header} ${body}${lineSuffix}`
 
     if (isError) {
         toConsole(data, ConsoleTypes.ERROR)
